@@ -217,13 +217,14 @@
         transform: translateX(-100%);
         transition: transform var(--transition), box-shadow var(--transition);
         box-shadow: none;        /* 关闭时无阴影，避免溢出到可见区域 */
-        z-index: 190;            /* 关闭时低于 topbar(200)，不遮挡菜单键 */
+        z-index: 300;
         width: min(var(--sidebar-w), 85vw);
+        pointer-events: none;    /* 关闭时禁用所有点击事件，穿透到下方的菜单键 */
       }
       .sidebar.open {
         transform: translateX(0);
         box-shadow: 4px 0 24px rgba(0,0,0,0.12);
-        z-index: 300;            /* 打开时高于 topbar，覆盖整个屏幕 */
+        pointer-events: auto;    /* 打开时恢复点击事件 */
       }
       .overlay { display: block; }
 
@@ -277,7 +278,7 @@
       { num: 6,  label: "Sleeping Area",              file: "Sleep-school-6-Sleeping-area.html" },
       { num: 7,  label: "Your Key to Better Sleep",   file: "Sleep-school-7-Your-key-to-better-sleep.html" },
       { num: 8,  label: "Grand Victory to Sleep",     file: "Sleep-school-8-Grand-victory-to-sleep.html" },
-      { num: 9,  label: "If You Feel Rested, You Are",file: "Sleep-school-9-If-you-feel-rested,you-probably-are.html" },
+      { num: 9,  label: "If You Feel Rested, You Probably Are", file: "Sleep-school-9-If-you-feel-rested,you-probably-are.html" },
       { num: 10, label: "Stay with Sleep",            file: "Sleep-school-10-Stay-with-sleep.html" },
       { num: 11, label: "Healthy Habits",             file: "Sleep-school-11-Healthy-habits.html" },
       { num: 12, label: "Pick One on Sleep Hygiene",  file: "Sleep-school-12-Pick-one-on-sleep-hygiene.html" },
