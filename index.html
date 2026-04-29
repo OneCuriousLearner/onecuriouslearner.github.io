@@ -34,7 +34,7 @@
     /* ── Sidebar：固定在左侧，独立滚动 ── */
     .sidebar {
       position: fixed;
-      top: 0; left: 0; bottom: 0;
+      top: var(--nav-h); left: 0; bottom: 0;
       width: var(--sidebar-w);
       background: var(--color-sidebar);
       border-right: 1px solid var(--color-border);
@@ -115,7 +115,7 @@
     .content-area {
       margin-left: var(--sidebar-w);
       min-height: 100vh;
-      background: var(--color-bg);
+      background: #ffffff;
     }
 
     /* 占位符：居中显示，撑满视口 */
@@ -141,9 +141,7 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
     .article-card {
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      background: #ffffff;
       max-width: 680px;
       margin: 0 auto;
     }
