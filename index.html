@@ -14,7 +14,6 @@
       --color-text:      #1d1d1f;
       --color-secondary: #86868b;
       --color-accent:    #0071e3;
-      --color-accent-h:  #0077ed;
       --color-border:    rgba(0,0,0,0.08);
       --color-active-bg: rgba(0,113,227,0.08);
       --sidebar-w:       260px;
@@ -32,59 +31,22 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Top Nav Bar (mobile only) ── */
-    .topbar {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: var(--nav-h);
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: saturate(180%) blur(20px);
-      -webkit-backdrop-filter: saturate(180%) blur(20px);
-      border-bottom: 1px solid var(--color-border);
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      z-index: 200;
-    }
-    .topbar-title {
-      font-size: 17px;
-      font-weight: 600;
-      letter-spacing: -0.022em;
-      color: var(--color-text);
-    }
-    .topbar-menu-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 8px;
-      color: var(--color-accent);
-      font-size: 22px;
-      line-height: 1;
-      transition: background var(--transition);
-    }
-    .topbar-menu-btn:hover { background: var(--color-active-bg); }
-
-    /* ── Layout ── */
-    .layout {
-      display: flex;
-      height: 100vh;
-    }
-
-    /* ── Sidebar ── */
+    /* ── Sidebar：固定在左侧，独立滚动 ── */
     .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
       width: var(--sidebar-w);
-      flex-shrink: 0;
       background: var(--color-sidebar);
       border-right: 1px solid var(--color-border);
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      z-index: 100;
     }
     .sidebar-header {
       padding: 28px 20px 16px;
       border-bottom: 1px solid var(--color-border);
+      flex-shrink: 0;
     }
     .sidebar-logo {
       font-size: 11px;
@@ -134,8 +96,7 @@
     }
     .nav-num {
       flex-shrink: 0;
-      width: 22px;
-      height: 22px;
+      width: 22px; height: 22px;
       border-radius: 6px;
       background: var(--color-border);
       font-size: 11px;
@@ -147,24 +108,19 @@
       transition: background var(--transition), color var(--transition);
     }
     .nav-item.active .nav-num,
-    .nav-item:hover .nav-num {
-      background: var(--color-accent);
-      color: #fff;
-    }
+    .nav-item:hover .nav-num { background: var(--color-accent); color: #fff; }
     .nav-label { flex: 1; }
 
-    /* ── Content Area ── */
+    /* ── 主内容区：margin-left 避开侧边栏，自身滚动 ── */
     .content-area {
-      flex: 1;
-      overflow-y: auto;
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
       background: var(--color-bg);
-      display: flex;
-      flex-direction: column;
     }
 
-    /* Loading / Empty state */
+    /* 占位符：居中显示，撑满视口 */
     .state-placeholder {
-      height: calc(100vh - var(--nav-h, 0px));
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -177,7 +133,7 @@
     .state-placeholder svg { opacity: 0.3; }
     .state-placeholder p { font-size: 15px; letter-spacing: -0.01em; }
 
-    /* Article wrapper */
+    /* 文章容器 */
     .article-wrapper {
       padding: 32px 40px 60px;
       animation: fadeIn 0.3s ease;
@@ -192,18 +148,50 @@
       margin: 0 auto;
     }
 
-    /* iframe 撑满卡片，无滚动条 */
+    /* iframe：无边框无滚动，高度由 JS 撑开 */
     .article-iframe {
       display: block;
       width: 100%;
       border: none;
-      /* 高度由 JS 动态设置 */
       min-height: 200px;
       transition: opacity 0.25s ease;
     }
     .article-iframe.loading { opacity: 0; }
 
-    /* ── Overlay (mobile drawer backdrop) ── */
+    /* ── Top Nav Bar（仅移动端） ── */
+    .topbar {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--color-border);
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 200;
+    }
+    .topbar-title {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.022em;
+    }
+    .topbar-menu-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      color: var(--color-accent);
+      font-size: 22px;
+      line-height: 1;
+      transition: background var(--transition);
+    }
+    .topbar-menu-btn:hover { background: var(--color-active-bg); }
+
+    /* ── 遮罩层 ── */
     .overlay {
       display: none;
       position: fixed;
@@ -215,29 +203,31 @@
     }
     .overlay.visible { opacity: 1; }
 
-    /* ── Mobile Drawer ── */
+    /* ── 移动端（≤734px） ── */
     @media (max-width: 734px) {
       .topbar { display: flex; }
 
-      .layout { padding-top: var(--nav-h); }
+      /* 主内容区不再偏移，顶部留出导航栏高度 */
+      .content-area {
+        margin-left: 0;
+        padding-top: var(--nav-h);
+      }
 
+      /* 侧边栏变为抽屉，默认隐藏在左侧屏幕外 */
       .sidebar {
-        position: fixed;
-        top: 0; left: 0; bottom: 0;
-        z-index: 160;
         transform: translateX(-100%);
         transition: transform var(--transition);
-        width: min(var(--sidebar-w), 85vw);
         box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+        z-index: 160;
+        width: min(var(--sidebar-w), 85vw);
       }
       .sidebar.open { transform: translateX(0); }
       .overlay { display: block; }
 
       .article-wrapper { padding: 16px 16px 48px; }
-      .article-iframe { min-height: 400px; }
     }
 
-    /* ── Tablet ── */
+    /* ── 平板（735px ~ 1068px） ── */
     @media (min-width: 735px) and (max-width: 1068px) {
       :root { --sidebar-w: 220px; }
       .article-wrapper { padding: 24px 24px 60px; }
@@ -246,56 +236,50 @@
 </head>
 <body>
 
-  <!-- Mobile top bar -->
+  <!-- 移动端顶部导航栏 -->
   <header class="topbar">
     <span class="topbar-title">Sleep School</span>
-    <button class="topbar-menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false">
-      &#9776;
-    </button>
+    <button class="topbar-menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
   </header>
 
-  <!-- Backdrop -->
+  <!-- 遮罩 -->
   <div class="overlay" id="overlay" aria-hidden="true"></div>
 
-  <div class="layout">
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar" aria-label="Article navigation">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Series</div>
+      <div class="sidebar-title">Sleep School</div>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav" aria-label="Chapters"></nav>
+  </aside>
 
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar" aria-label="Article navigation">
-      <div class="sidebar-header">
-        <div class="sidebar-logo">Series</div>
-        <div class="sidebar-title">Sleep School</div>
-      </div>
-      <nav class="sidebar-nav" id="sidebarNav" aria-label="Chapters"></nav>
-    </aside>
-
-    <!-- Main content -->
-    <main class="content-area" id="contentArea">
-      <div class="state-placeholder" id="placeholder">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-        </svg>
-        <p>Select a chapter to begin reading.</p>
-      </div>
-    </main>
-
-  </div>
+  <!-- 主内容区 -->
+  <main class="content-area" id="contentArea">
+    <div class="state-placeholder" id="placeholder">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+      </svg>
+      <p>Select a chapter to begin reading.</p>
+    </div>
+  </main>
 
   <script>
     const articles = [
-      { num: 1,  label: "Better Sleep",                    file: "Sleep-school-1-Better-sleep.html" },
-      { num: 2,  label: "Sleep and Change",                file: "Sleep-school-2-Sleep-and-change.html" },
-      { num: 3,  label: "Picking It Up for Sleep",         file: "Sleep-school-3-Picking-it-up-for-sleep.html" },
-      { num: 4,  label: "Regarding Sleep",                 file: "Sleep-school-4-Regarding-sleep.html" },
-      { num: 5,  label: "Let's Practice Sleep",            file: "Sleep-school-5-Let's-practice-sleep.html" },
-      { num: 6,  label: "Sleeping Area",                   file: "Sleep-school-6-Sleeping-area.html" },
-      { num: 7,  label: "Your Key to Better Sleep",        file: "Sleep-school-7-Your-key-to-better-sleep.html" },
-      { num: 8,  label: "Grand Victory to Sleep",          file: "Sleep-school-8-Grand-victory-to-sleep.html" },
-      { num: 9,  label: "If You Feel Rested, You Are",     file: "Sleep-school-9-If-you-feel-rested,you-probably-are.html" },
-      { num: 10, label: "Stay with Sleep",                 file: "Sleep-school-10-Stay-with-sleep.html" },
-      { num: 11, label: "Healthy Habits",                  file: "Sleep-school-11-Healthy-habits.html" },
-      { num: 12, label: "Pick One on Sleep Hygiene",       file: "Sleep-school-12-Pick-one-on-sleep-hygiene.html" },
-      { num: 13, label: "Almost Sleeping",                 file: "Sleep-school-13-Almost-sleeping.html" },
-      { num: 14, label: "And Now, to Bed and Sleep",       file: "Sleep-school-14-And-now,to-bed-and-sleep.html" },
+      { num: 1,  label: "Better Sleep",              file: "Sleep-school-1-Better-sleep.html" },
+      { num: 2,  label: "Sleep and Change",           file: "Sleep-school-2-Sleep-and-change.html" },
+      { num: 3,  label: "Picking It Up for Sleep",    file: "Sleep-school-3-Picking-it-up-for-sleep.html" },
+      { num: 4,  label: "Regarding Sleep",            file: "Sleep-school-4-Regarding-sleep.html" },
+      { num: 5,  label: "Let's Practice Sleep",       file: "Sleep-school-5-Let's-practice-sleep.html" },
+      { num: 6,  label: "Sleeping Area",              file: "Sleep-school-6-Sleeping-area.html" },
+      { num: 7,  label: "Your Key to Better Sleep",   file: "Sleep-school-7-Your-key-to-better-sleep.html" },
+      { num: 8,  label: "Grand Victory to Sleep",     file: "Sleep-school-8-Grand-victory-to-sleep.html" },
+      { num: 9,  label: "If You Feel Rested, You Are",file: "Sleep-school-9-If-you-feel-rested,you-probably-are.html" },
+      { num: 10, label: "Stay with Sleep",            file: "Sleep-school-10-Stay-with-sleep.html" },
+      { num: 11, label: "Healthy Habits",             file: "Sleep-school-11-Healthy-habits.html" },
+      { num: 12, label: "Pick One on Sleep Hygiene",  file: "Sleep-school-12-Pick-one-on-sleep-hygiene.html" },
+      { num: 13, label: "Almost Sleeping",            file: "Sleep-school-13-Almost-sleeping.html" },
+      { num: 14, label: "And Now, to Bed and Sleep",  file: "Sleep-school-14-And-now,to-bed-and-sleep.html" },
     ];
 
     const nav         = document.getElementById('sidebarNav');
@@ -307,7 +291,7 @@
 
     let activeIndex = -1;
 
-    // ── Build nav items ──
+    // ── 构建导航列表 ──
     articles.forEach((a, i) => {
       const btn = document.createElement('button');
       btn.className = 'nav-item';
@@ -317,29 +301,31 @@
       nav.appendChild(btn);
     });
 
-    // ── Load article via iframe ──
+    // ── 加载文章（iframe 方案） ──
     function loadArticle(index) {
       if (index === activeIndex) { closeSidebar(); return; }
 
-      // Update active state
       nav.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', i === index));
       activeIndex = index;
 
-      // Show loading spinner
+      // 显示 loading
+      placeholder.style.display = 'flex';
       placeholder.innerHTML = `
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="animation:spin 1s linear infinite">
           <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
         </svg>
         <p>Loading…</p>`;
-      placeholder.style.display = 'flex';
 
-      // Remove previous article wrapper
+      // 移除旧文章
       const prev = contentArea.querySelector('.article-wrapper');
       if (prev) prev.remove();
 
       closeSidebar();
 
-      // Build iframe
+      // 滚动到顶部
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // 构建 iframe
       const wrapper = document.createElement('div');
       wrapper.className = 'article-wrapper';
 
@@ -349,23 +335,37 @@
       const iframe = document.createElement('iframe');
       iframe.className = 'article-iframe loading';
       iframe.src = articles[index].file;
-      iframe.setAttribute('scrolling', 'no');   // 禁用 iframe 内部滚动
+      iframe.setAttribute('scrolling', 'no');
       iframe.setAttribute('title', articles[index].label);
 
-      // 当 iframe 加载完成后，撑开高度
       iframe.addEventListener('load', () => {
         try {
           const iDoc = iframe.contentDocument || iframe.contentWindow.document;
-          // 撑开高度：取 scrollHeight 避免内容被截断
-          const h = iDoc.documentElement.scrollHeight || iDoc.body.scrollHeight;
+          // 先重置高度，让 scrollHeight 计算准确
+          iframe.style.height = '0px';
+          const h = Math.max(
+            iDoc.documentElement.scrollHeight,
+            iDoc.body ? iDoc.body.scrollHeight : 0
+          );
           iframe.style.height = h + 'px';
+
+          // 图片加载完后可能撑高，用 ResizeObserver 跟踪
+          if (window.ResizeObserver) {
+            const ro = new ResizeObserver(() => {
+              const newH = Math.max(
+                iDoc.documentElement.scrollHeight,
+                iDoc.body ? iDoc.body.scrollHeight : 0
+              );
+              if (newH > 100) iframe.style.height = newH + 'px';
+            });
+            ro.observe(iDoc.documentElement);
+          }
         } catch (e) {
-          // 同源策略阻止访问（理论上同域不会触发，保底设置一个大值）
-          iframe.style.height = '2000px';
+          // 跨域兜底（本项目同域，理论不触发）
+          iframe.style.height = '3000px';
         }
         iframe.classList.remove('loading');
         placeholder.style.display = 'none';
-        contentArea.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
       card.appendChild(iframe);
@@ -373,54 +373,28 @@
       contentArea.appendChild(wrapper);
     }
 
-    // ── Mobile drawer ──
+    // ── 移动端抽屉 ──
     function openSidebar() {
       sidebar.classList.add('open');
       overlay.classList.add('visible');
       menuBtn.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = 'hidden';
     }
     function closeSidebar() {
       sidebar.classList.remove('open');
       overlay.classList.remove('visible');
       menuBtn.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
     }
 
-    menuBtn.addEventListener('click', () => {
-      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
-    });
+    menuBtn.addEventListener('click', () =>
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar()
+    );
     overlay.addEventListener('click', closeSidebar);
-
-    // Keyboard: Escape closes drawer
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
 
-    // ── Spin keyframe (inline) ──
-    const style = document.createElement('style');
-    style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
-    document.head.appendChild(style);
-
-    // ── 监听 iframe 内容高度变化（应对懒加载图片等导致的高度变化）──
-    // 使用 ResizeObserver 轮询当前激活的 iframe
-    const ro = new ResizeObserver(() => {
-      const iframe = contentArea.querySelector('.article-iframe');
-      if (!iframe) return;
-      try {
-        const iDoc = iframe.contentDocument || iframe.contentWindow.document;
-        const h = iDoc.documentElement.scrollHeight || iDoc.body.scrollHeight;
-        if (h > 100) iframe.style.height = h + 'px';
-      } catch (_) {}
-    });
-    // 在每次加载新 iframe 后注册观察
-    const origLoad = loadArticle;
-    // 用 MutationObserver 监听 contentArea 子节点变化，自动绑定 ResizeObserver
-    new MutationObserver(() => {
-      const iframe = contentArea.querySelector('.article-iframe');
-      if (iframe && iframe.contentDocument) {
-        ro.disconnect();
-        ro.observe(iframe.contentDocument.body || iframe.contentDocument.documentElement);
-      }
-    }).observe(contentArea, { childList: true, subtree: false });
+    // spin 动画
+    const s = document.createElement('style');
+    s.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(s);
   </script>
 </body>
 </html>
