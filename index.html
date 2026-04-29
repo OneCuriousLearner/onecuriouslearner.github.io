@@ -9,7 +9,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --color-bg:        #f5f5f7;
+      --color-bg:        #ffffff;
       --color-sidebar:   #ffffff;
       --color-text:      #1d1d1f;
       --color-secondary: #86868b;
@@ -215,12 +215,16 @@
       /* 侧边栏变为抽屉，默认隐藏在左侧屏幕外 */
       .sidebar {
         transform: translateX(-100%);
-        transition: transform var(--transition);
-        box-shadow: 4px 0 24px rgba(0,0,0,0.12);
-        z-index: 300;
+        transition: transform var(--transition), box-shadow var(--transition);
+        box-shadow: none;        /* 关闭时无阴影，避免溢出到可见区域 */
+        z-index: 190;            /* 关闭时低于 topbar(200)，不遮挡菜单键 */
         width: min(var(--sidebar-w), 85vw);
       }
-      .sidebar.open { transform: translateX(0); }
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+        z-index: 300;            /* 打开时高于 topbar，覆盖整个屏幕 */
+      }
       .overlay { display: block; }
 
       .article-wrapper { padding: 16px 16px 48px; }
