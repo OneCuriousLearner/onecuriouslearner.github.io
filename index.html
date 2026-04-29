@@ -34,14 +34,14 @@
     /* ── Sidebar：固定在左侧，独立滚动 ── */
     .sidebar {
       position: fixed;
-      top: var(--nav-h); left: 0; bottom: 0;
+      top: 0; left: 0; bottom: 0;
       width: var(--sidebar-w);
       background: var(--color-sidebar);
       border-right: 1px solid var(--color-border);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      z-index: 100;
+      z-index: 300; /* 提高 z-index，使其在移动端覆盖 topbar */
     }
     .sidebar-header {
       padding: 28px 20px 16px;
@@ -115,7 +115,7 @@
     .content-area {
       margin-left: var(--sidebar-w);
       min-height: 100vh;
-      background: #ffffff;
+      background: var(--color-bg);
     }
 
     /* 占位符：居中显示，撑满视口 */
@@ -137,13 +137,14 @@
     .article-wrapper {
       padding: 32px 40px 60px;
       animation: fadeIn 0.3s ease;
+      max-width: 680px;
+      margin: 0 auto;
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
     .article-card {
       background: #ffffff;
-      max-width: 680px;
-      margin: 0 auto;
+      /* 移除圆角和阴影，实现无框线纯白背景 */
     }
 
     /* iframe：无边框无滚动，高度由 JS 撑开 */
@@ -195,7 +196,7 @@
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.4);
-      z-index: 150;
+      z-index: 250; /* 确保遮罩层在 topbar 之上，sidebar 之下 */
       opacity: 0;
       transition: opacity var(--transition);
     }
@@ -216,7 +217,7 @@
         transform: translateX(-100%);
         transition: transform var(--transition);
         box-shadow: 4px 0 24px rgba(0,0,0,0.12);
-        z-index: 160;
+        z-index: 300;
         width: min(var(--sidebar-w), 85vw);
       }
       .sidebar.open { transform: translateX(0); }
