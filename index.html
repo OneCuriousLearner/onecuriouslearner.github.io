@@ -196,11 +196,15 @@
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.4);
-      z-index: 250; /* 确保遮罩层在 topbar 之上，sidebar 之下 */
+      z-index: 250;
       opacity: 0;
+      pointer-events: none;    /* 不可见时禁止拦截点击 */
       transition: opacity var(--transition);
     }
-    .overlay.visible { opacity: 1; }
+    .overlay.visible {
+      opacity: 1;
+      pointer-events: auto;    /* 显示时才拦截点击（用于关闭抽屉） */
+    }
 
     /* ── 移动端（≤734px） ── */
     @media (max-width: 734px) {
@@ -226,7 +230,7 @@
         box-shadow: 4px 0 24px rgba(0,0,0,0.12);
         pointer-events: auto;    /* 打开时恢复点击事件 */
       }
-      .overlay { display: block; }
+      .overlay { display: block; pointer-events: none; } /* 初始无交互，visible 类控制 */
 
       .article-wrapper { padding: 16px 16px 48px; }
     }
