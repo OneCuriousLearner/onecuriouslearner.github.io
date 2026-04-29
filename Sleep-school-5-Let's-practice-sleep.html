@@ -7,6 +7,36 @@
         margin-bottom: 0;
       }
     </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @media (max-width: 600px) {
+      /* 覆盖邮件模板三列 table-cell 布局，窄屏下改为块级堆叠 */
+      div[style*="display: table-cell"],
+      div[style*="display:table-cell"] {
+        display: block !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        width: 100% !important;
+      }
+      /* 外层容器也去掉 min-width 限制 */
+      div[style*="min-width: 320px"],
+      div[style*="min-width:320px"] {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+      }
+      /* 图片自适应 */
+      img {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+      /* table 本身也自适应 */
+      table {
+        min-width: 0 !important;
+        width: 100% !important;
+      }
+    }
+  </style>
   </head>
   <body dir="ltr">
     <div
