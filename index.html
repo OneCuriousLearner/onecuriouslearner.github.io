@@ -164,7 +164,7 @@
 
     /* Loading / Empty state */
     .state-placeholder {
-      flex: 1;
+      height: calc(100vh - var(--nav-h, 0px));
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -179,7 +179,6 @@
 
     /* Article wrapper */
     .article-wrapper {
-      flex: 1;
       padding: 32px 40px 60px;
       animation: fadeIn 0.3s ease;
     }
@@ -189,11 +188,20 @@
       background: #fff;
       border-radius: var(--radius);
       box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-      overflow: hidden;
       max-width: 680px;
       margin: 0 auto;
     }
-    .article-card > * { max-width: 100% !important; }
+
+    /* iframe 撑满卡片，无滚动条 */
+    .article-iframe {
+      display: block;
+      width: 100%;
+      border: none;
+      /* 高度由 JS 动态设置 */
+      min-height: 200px;
+      transition: opacity 0.25s ease;
+    }
+    .article-iframe.loading { opacity: 0; }
 
     /* ── Overlay (mobile drawer backdrop) ── */
     .overlay {
@@ -226,6 +234,7 @@
       .overlay { display: block; }
 
       .article-wrapper { padding: 16px 16px 48px; }
+      .article-iframe { min-height: 400px; }
     }
 
     /* ── Tablet ── */
@@ -308,15 +317,15 @@
       nav.appendChild(btn);
     });
 
-    // ── Load article via fetch ──
-    async function loadArticle(index) {
+    // ── Load article via iframe ──
+    function loadArticle(index) {
       if (index === activeIndex) { closeSidebar(); return; }
 
       // Update active state
       nav.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', i === index));
       activeIndex = index;
 
-      // Show loading
+      // Show loading spinner
       placeholder.innerHTML = `
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="animation:spin 1s linear infinite">
           <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
@@ -324,34 +333,44 @@
         <p>Loading…</p>`;
       placeholder.style.display = 'flex';
 
-      // Remove previous article card
+      // Remove previous article wrapper
       const prev = contentArea.querySelector('.article-wrapper');
       if (prev) prev.remove();
 
       closeSidebar();
 
-      try {
-        const res  = await fetch(articles[index].file);
-        const html = await res.text();
+      // Build iframe
+      const wrapper = document.createElement('div');
+      wrapper.className = 'article-wrapper';
 
-        // Extract <body> content
-        const parser = new DOMParser();
-        const doc    = parser.parseFromString(html, 'text/html');
-        const body   = doc.body;
+      const card = document.createElement('div');
+      card.className = 'article-card';
 
-        // Inject into card
-        const wrapper = document.createElement('div');
-        wrapper.className = 'article-wrapper';
-        wrapper.innerHTML = `<div class="article-card">${body.innerHTML}</div>`;
+      const iframe = document.createElement('iframe');
+      iframe.className = 'article-iframe loading';
+      iframe.src = articles[index].file;
+      iframe.setAttribute('scrolling', 'no');   // 禁用 iframe 内部滚动
+      iframe.setAttribute('title', articles[index].label);
 
+      // 当 iframe 加载完成后，撑开高度
+      iframe.addEventListener('load', () => {
+        try {
+          const iDoc = iframe.contentDocument || iframe.contentWindow.document;
+          // 撑开高度：取 scrollHeight 避免内容被截断
+          const h = iDoc.documentElement.scrollHeight || iDoc.body.scrollHeight;
+          iframe.style.height = h + 'px';
+        } catch (e) {
+          // 同源策略阻止访问（理论上同域不会触发，保底设置一个大值）
+          iframe.style.height = '2000px';
+        }
+        iframe.classList.remove('loading');
         placeholder.style.display = 'none';
-        contentArea.appendChild(wrapper);
         contentArea.scrollTo({ top: 0, behavior: 'smooth' });
+      });
 
-      } catch (e) {
-        placeholder.innerHTML = `<p style="color:#ff3b30">Failed to load article. Please try again.</p>`;
-        placeholder.style.display = 'flex';
-      }
+      card.appendChild(iframe);
+      wrapper.appendChild(card);
+      contentArea.appendChild(wrapper);
     }
 
     // ── Mobile drawer ──
@@ -380,6 +399,28 @@
     const style = document.createElement('style');
     style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
     document.head.appendChild(style);
+
+    // ── 监听 iframe 内容高度变化（应对懒加载图片等导致的高度变化）──
+    // 使用 ResizeObserver 轮询当前激活的 iframe
+    const ro = new ResizeObserver(() => {
+      const iframe = contentArea.querySelector('.article-iframe');
+      if (!iframe) return;
+      try {
+        const iDoc = iframe.contentDocument || iframe.contentWindow.document;
+        const h = iDoc.documentElement.scrollHeight || iDoc.body.scrollHeight;
+        if (h > 100) iframe.style.height = h + 'px';
+      } catch (_) {}
+    });
+    // 在每次加载新 iframe 后注册观察
+    const origLoad = loadArticle;
+    // 用 MutationObserver 监听 contentArea 子节点变化，自动绑定 ResizeObserver
+    new MutationObserver(() => {
+      const iframe = contentArea.querySelector('.article-iframe');
+      if (iframe && iframe.contentDocument) {
+        ro.disconnect();
+        ro.observe(iframe.contentDocument.body || iframe.contentDocument.documentElement);
+      }
+    }).observe(contentArea, { childList: true, subtree: false });
   </script>
 </body>
 </html>
