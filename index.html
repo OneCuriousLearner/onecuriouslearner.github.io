@@ -240,6 +240,46 @@
       :root { --sidebar-w: 220px; }
       .article-wrapper { padding: 24px 24px 60px; }
     }
+
+    /* ── 语言切换按钮（Apple Segmented Control 风格） ── */
+    .lang-switcher {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(0,0,0,0.06);
+      border-radius: 980px;
+      padding: 2px;
+      gap: 0;
+    }
+    .lang-btn {
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px 14px;
+      border-radius: 980px;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      color: var(--color-secondary);
+      transition: color 0.18s ease;
+      line-height: 1.38;
+      white-space: nowrap;
+      -webkit-font-smoothing: antialiased;
+      z-index: 1;
+    }
+    .lang-btn.active {
+      background: #ffffff;
+      color: var(--color-text);
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+    }
+    .lang-btn:not(.active):hover {
+      color: var(--color-text);
+    }
+    /* sidebar header 中的切换器 */
+    .sidebar-lang {
+      margin-top: 14px;
+    }
   </style>
 </head>
 <body>
@@ -247,7 +287,13 @@
   <!-- 移动端顶部导航栏 -->
   <header class="topbar">
     <span class="topbar-title">Sleep School</span>
-    <button class="topbar-menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="lang-switcher" id="topbarLangSwitcher">
+        <button class="lang-btn active" data-lang="zh">中文</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+      <button class="topbar-menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+    </div>
   </header>
 
   <!-- 遮罩 -->
@@ -258,6 +304,12 @@
     <div class="sidebar-header">
       <div class="sidebar-logo">Series</div>
       <div class="sidebar-title">Sleep School</div>
+      <div class="sidebar-lang">
+        <div class="lang-switcher" id="sidebarLangSwitcher">
+          <button class="lang-btn active" data-lang="zh">中文</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
     </div>
     <nav class="sidebar-nav" id="sidebarNav" aria-label="Chapters"></nav>
   </aside>
@@ -274,21 +326,23 @@
 
   <script>
     const articles = [
-      { num: 1,  label: "Better Sleep",              file: "Sleep-school-1-Better-sleep.html" },
-      { num: 2,  label: "Sleep and Change",           file: "Sleep-school-2-Sleep-and-change.html" },
-      { num: 3,  label: "Picking It Up for Sleep",    file: "Sleep-school-3-Picking-it-up-for-sleep.html" },
-      { num: 4,  label: "Regarding Sleep",            file: "Sleep-school-4-Regarding-sleep.html" },
-      { num: 5,  label: "Let's Practice Sleep",       file: "Sleep-school-5-Let's-practice-sleep.html" },
-      { num: 6,  label: "Sleeping Area",              file: "Sleep-school-6-Sleeping-area.html" },
-      { num: 7,  label: "Your Key to Better Sleep",   file: "Sleep-school-7-Your-key-to-better-sleep.html" },
-      { num: 8,  label: "Grand Victory to Sleep",     file: "Sleep-school-8-Grand-victory-to-sleep.html" },
-      { num: 9,  label: "If You Feel Rested, You Probably Are", file: "Sleep-school-9-If-you-feel-rested,you-probably-are.html" },
-      { num: 10, label: "Stay with Sleep",            file: "Sleep-school-10-Stay-with-sleep.html" },
-      { num: 11, label: "Healthy Habits",             file: "Sleep-school-11-Healthy-habits.html" },
-      { num: 12, label: "Pick One on Sleep Hygiene",  file: "Sleep-school-12-Pick-one-on-sleep-hygiene.html" },
-      { num: 13, label: "Almost Sleeping",            file: "Sleep-school-13-Almost-sleeping.html" },
-      { num: 14, label: "And Now, to Bed and Sleep",  file: "Sleep-school-14-And-now,to-bed-and-sleep.html" },
+      { num: 1,  label: "Better Sleep",              zh: "email/html/zh/Sleep-school-1-Better-sleep.html",              en: "email/html/en/Sleep-school-1-Better-sleep.html" },
+      { num: 2,  label: "Sleep and Change",           zh: "email/html/zh/Sleep-school-2-Sleep-and-change.html",           en: "email/html/en/Sleep-school-2-Sleep-and-change.html" },
+      { num: 3,  label: "Picking It Up for Sleep",    zh: "email/html/zh/Sleep-school-3-Picking-it-up-for-sleep.html",    en: "email/html/en/Sleep-school-3-Picking-it-up-for-sleep.html" },
+      { num: 4,  label: "Regarding Sleep",            zh: "email/html/zh/Sleep-school-4-Regarding-sleep.html",            en: "email/html/en/Sleep-school-4-Regarding-sleep.html" },
+      { num: 5,  label: "Let's Practice Sleep",       zh: "email/html/zh/Sleep-school-5-Let's-practice-sleep.html",       en: "email/html/en/Sleep-school-5-Let's-practice-sleep.html" },
+      { num: 6,  label: "Sleeping Area",              zh: "email/html/zh/Sleep-school-6-Sleeping-area.html",              en: "email/html/en/Sleep-school-6-Sleeping-area.html" },
+      { num: 7,  label: "Your Key to Better Sleep",   zh: "email/html/zh/Sleep-school-7-Your-key-to-better-sleep.html",   en: "email/html/en/Sleep-school-7-Your-key-to-better-sleep.html" },
+      { num: 8,  label: "Grand Victory to Sleep",     zh: "email/html/zh/Sleep-school-8-Grand-victory-to-sleep.html",     en: "email/html/en/Sleep-school-8-Grand-victory-to-sleep.html" },
+      { num: 9,  label: "If You Feel Rested, You Probably Are", zh: "email/html/zh/Sleep-school-9-If-you-feel-rested,you-probably-are.html", en: "email/html/en/Sleep-school-9-If-you-feel-rested,you-probably-are.html" },
+      { num: 10, label: "Stay with Sleep",            zh: "email/html/zh/Sleep-school-10-Stay-with-sleep.html",           en: "email/html/en/Sleep-school-10-Stay-with-sleep.html" },
+      { num: 11, label: "Healthy Habits",             zh: "email/html/zh/Sleep-school-11-Healthy-habits.html",            en: "email/html/en/Sleep-school-11-Healthy-habits.html" },
+      { num: 12, label: "Pick One on Sleep Hygiene",  zh: "email/html/zh/Sleep-school-12-Pick-one-on-sleep-hygiene.html", en: "email/html/en/Sleep-school-12-Pick-one-on-sleep-hygiene.html" },
+      { num: 13, label: "Almost Sleeping",            zh: "email/html/zh/Sleep-school-13-Almost-sleeping.html",           en: "email/html/en/Sleep-school-13-Almost-sleeping.html" },
+      { num: 14, label: "And Now, to Bed and Sleep",  zh: "email/html/zh/Sleep-school-14-And-now,to-bed-and-sleep.html",  en: "email/html/en/Sleep-school-14-And-now,to-bed-and-sleep.html" },
     ];
+
+    let currentLang = 'zh';
 
     const nav         = document.getElementById('sidebarNav');
     const contentArea = document.getElementById('contentArea');
@@ -342,7 +396,7 @@
 
       const iframe = document.createElement('iframe');
       iframe.className = 'article-iframe loading';
-      iframe.src = articles[index].file;
+      iframe.src = articles[index][currentLang];
       iframe.setAttribute('scrolling', 'no');
       iframe.setAttribute('title', articles[index].label);
 
@@ -380,6 +434,30 @@
       wrapper.appendChild(card);
       contentArea.appendChild(wrapper);
     }
+
+    // ── 语言切换 ──
+    function switchLang(lang) {
+      if (lang === currentLang) return;
+      currentLang = lang;
+
+      // 同步两处切换器的 active 状态
+      document.querySelectorAll('.lang-switcher .lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+
+      // 若当前有打开的文章，重新加载对应语言版本
+      if (activeIndex !== -1) {
+        const prev = contentArea.querySelector('.article-wrapper');
+        if (prev) prev.remove();
+        const savedIndex = activeIndex;
+        activeIndex = -1;       // 重置，使 loadArticle 不会因 index===activeIndex 而跳过
+        loadArticle(savedIndex);
+      }
+    }
+
+    document.querySelectorAll('.lang-switcher .lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchLang(btn.dataset.lang));
+    });
 
     // ── 移动端抽屉 ──
     function openSidebar() {
